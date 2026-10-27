@@ -1,26 +1,373 @@
 <!doctype html>
-<html lang="vi">
-<head>
+<html lang="vi"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>2026 Demo</title>
 <meta name="description" content="Chọn look bro thích trong bộ sưu tập mới của NBG.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="2026 Demo">
 <meta property="og:description" content="Chọn look bro thích trong bộ sưu tập mới của NBG.">
-<meta property="og:image" content="https://neverbegoodvn-tech.github.io/2026-demo/thumb%20(1).jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image" content="https://neverbegoodvn-tech.github.io/2026-demo/thumb.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:url" content="https://neverbegoodvn-tech.github.io/2026-demo/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="robots" content="noindex">
-<style>body{margin:0;background:#F5F4F1;font:14px system-ui,sans-serif;color:#1A1A19;display:grid;place-items:center;height:100vh}a{color:#1A1A19}</style>
+<link rel="preload" as="image" href="img/mood.jpg"><link rel="preload" as="image" href="img/lineup.jpg">
+<link rel="preconnect" href="https://script.google.com">
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+</head><body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Be+Vietnam+Pro:wght@400;500;600&display=swap">
+<style>
+/* Layout: cột điện thoại 520px. Trang chủ = lưới 2 cột 10 look kẻ hairline như catalog; bấm look -> trang look (ảnh trước/sau + lưới món); bấm món -> sheet tick lý do & size; thanh dưới = đếm + Gửi */
+:root{
+  --page:#F5F4F1; --tile:#ECEBE8; --ink:#1A1A19; --mute:#8A8782; --line:#DEDBD5; --red:#C4321F; --white:#FFFFFF;
+  --f-disp:"Instrument Serif","Times New Roman",serif; --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--page)}
+body{margin:0;color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:1.5px solid var(--ink);outline-offset:2px}
+.app{max-width:520px;margin:0 auto;min-height:100%;background:var(--page);border-left:1px solid var(--line);border-right:1px solid var(--line);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+@media(max-width:560px){.app{border:0}}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mast{text-align:center;padding-block:34px 22px;border-bottom:1px solid var(--line)}
+.mast h1{font-family:var(--f-disp);font-weight:400;font-size:46px;line-height:1;margin:0;letter-spacing:-.01em}
+.mast h1 i{font-style:italic}
+/* grid like the reference: hairline cells */
+.grid{display:grid;grid-template-columns:1fr 1fr}
+.cell{border-bottom:1px solid var(--line);position:relative;display:grid}
+.cell:nth-child(odd){border-right:1px solid var(--line)}
+.cell .open{display:grid;gap:10px;padding:14px 12px 14px;text-align:left}
+.cell img{width:100%;aspect-ratio:1/2;object-fit:contain;background:var(--tile);display:block}
+.lab{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.ln{font-size:11px;letter-spacing:.16em;font-weight:500}
+.dots{display:flex;gap:4px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.heart{position:absolute;top:20px;right:18px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:rgba(245,244,241,.85)}
+.heart svg{width:17px;height:17px;fill:none;stroke:var(--ink);stroke-width:1.4}
+.heart[aria-pressed="true"] svg{fill:var(--red);stroke:var(--red)}
+.picked{font-size:10.5px;color:var(--red);letter-spacing:.06em}
+/* look view */
+.bar{position:sticky;top:0;z-index:5;background:rgba(245,244,241,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:grid;grid-template-columns:40px 1fr 40px;align-items:center;height:52px;top:env(safe-area-inset-top,0px)}
+.bar .t{text-align:center;font-size:11.5px;letter-spacing:.18em;font-weight:500}
+.icon{width:40px;height:40px;display:grid;place-items:center}
+.icon svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:1.4}
+.icon[aria-pressed="true"] svg{fill:var(--red);stroke:var(--red)}
+.hero{background:var(--tile);position:relative}
+.hero img{width:100%;aspect-ratio:1/2;max-height:72vh;object-fit:contain;display:block}
+.seg{display:flex;justify-content:center;gap:18px;padding:12px 0 2px}
+.seg button{font-size:11px;letter-spacing:.16em;color:var(--mute);padding:4px 0;border-bottom:1px solid transparent}
+.seg button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+.hint{text-align:center;font-size:12px;color:var(--mute);padding:18px 0 12px;border-bottom:1px solid var(--line)}
+.item .open{display:grid;gap:8px;padding:12px;text-align:left;width:100%}
+.item img{width:100%;aspect-ratio:6/7;object-fit:contain;background:var(--tile);display:block}
+.iname{font-size:13px;font-weight:500;line-height:1.3}
+.isub{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}
+.check{position:absolute;top:18px;right:18px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;font-size:12px}
+[hidden]{display:none!important}
+.qa{display:grid;grid-template-columns:.8fr 1.2fr;gap:6px;padding:0 12px 14px}
+.qa button{border:1px solid var(--line);border-radius:999px;padding:9px 2px;font-size:11.5px;white-space:nowrap;letter-spacing:-.01em;background:var(--white);line-height:1.2}
+.qa button[aria-pressed="true"]{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.qa button[data-q="nope"][aria-pressed="true"]{background:var(--mute);border-color:var(--mute)}
+.prog{font-size:10.5px;letter-spacing:.06em;color:var(--red);margin-left:8px;font-weight:500}
+.prog.done{color:var(--mute)}
+.count b.warn{color:var(--red)}
+.step2{color:var(--ink);font-size:12.5px;line-height:1.5;padding-inline:16px}
+.note{margin:0;font-size:13.5px;color:var(--ink);line-height:1.55}
+.sum{display:grid;gap:10px;padding-block:22px 30px}
+.smark{margin:0;text-align:center;font-family:var(--f-disp);font-size:22px;line-height:1}.smark i{font-style:italic}
+.shot{margin:0;color:var(--red);font-size:13px;font-weight:600;text-align:center;letter-spacing:.02em}
+.sum-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.sum-h h2{font-family:var(--f-disp);font-weight:400;font-size:32px;margin:0;line-height:1}
+.sid{font-size:11px;color:var(--mute);letter-spacing:.04em;font-variant-numeric:tabular-nums;text-align:right}
+.sc{margin:0;font-size:13px;color:var(--ink)}
+.sum .k{font-size:10.5px;letter-spacing:.16em;color:var(--mute);margin-top:4px}
+.slooks{display:flex;flex-wrap:wrap;gap:6px}
+.slooks figure{margin:0;width:46px;display:grid;gap:2px}
+.slooks img{width:46px;height:92px;object-fit:contain;background:var(--tile);border-radius:3px;display:block}
+.slooks figcaption{font-size:10px;text-align:center;color:var(--mute)}
+.sitems{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sitems li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;font-size:12.5px;line-height:1.4;border-bottom:1px solid var(--line);padding-bottom:6px}
+.sitems img{width:40px;height:46px;object-fit:contain;background:var(--tile);border-radius:3px}
+.sl{font-size:10.5px;color:var(--mute);letter-spacing:.04em}
+.sx{font-size:11.5px;color:var(--mute)}
+.sv{display:inline-block;font-size:10.5px;border-radius:999px;padding:1px 7px;background:var(--ink);color:var(--white);margin-left:4px}
+.sv.no{background:var(--mute)}
+.sn{margin:0;font-size:13px}
+.lrow{display:grid;grid-template-columns:26% minmax(0,1fr) minmax(0,1fr);gap:8px;padding:0 12px 16px;align-items:stretch}
+.lfig{background:var(--tile);border-radius:4px;grid-row:span 2;position:relative;align-self:start}
+.lfig img{width:100%;aspect-ratio:1/2;object-fit:contain;display:block}
+.litems{display:contents}
+.li{position:relative;border:1px solid var(--line);border-radius:8px;padding:6px;display:grid;gap:6px;grid-template-rows:1fr auto}
+.li.is-yes{border-color:var(--ink)}
+.li .open{display:grid;grid-template-columns:1fr;gap:5px;text-align:left;width:100%;padding:0}
+.li .open img{width:100%;aspect-ratio:6/7;height:auto;object-fit:contain;background:var(--tile);border-radius:4px}
+.li .t{display:grid;gap:1px;min-width:0}
+.li .iname{font-size:12px;line-height:1.25}
+.li .isub,.li .pr{font-size:10.5px}
+.li .more{font-size:10px;color:var(--mute);text-decoration:underline;text-underline-offset:2px}
+.li .qa{padding:0;gap:4px;grid-template-columns:1fr}
+.li .qa button{padding:7px 2px;font-size:11px}
+.li .check{top:9px;left:9px;right:auto;width:20px;height:20px;font-size:11px;z-index:1}
+.lrow.n3{grid-template-columns:19% minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px}
+.lrow.n3 .lfig{grid-row:auto}
+.lrow.n3 .li{padding:5px}
+.lrow.n3 .li .iname{font-size:11.5px}
+.lrow.n3 .li .qa button{font-size:10.5px;padding:7px 0;letter-spacing:-.02em}
+.check.no{background:var(--mute)}
+.pr{font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
+.price{margin:0;font-size:13px;color:var(--mute)}.price b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.consent{margin:0;font-size:11.5px;color:var(--mute);line-height:1.45}
+.pager{display:flex;justify-content:space-between;padding-block:16px;font-size:11.5px;letter-spacing:.14em}
+.pager button[disabled]{opacity:.25;cursor:default}
+/* sheet */
+.veil{position:fixed;inset:0;background:rgba(26,26,25,.42);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--page);width:100%;max-width:520px;max-height:92%;overflow:auto;border-radius:16px 16px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(30px);opacity:.6}}}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0}
+.sh-img{background:var(--tile);margin-top:10px}
+.sh-img img{width:100%;aspect-ratio:6/5;object-fit:contain;display:block}
+.sh-body{display:grid;gap:14px;padding-top:14px}
+.sh-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sh-title h2{font-family:var(--f-disp);font-weight:400;font-size:28px;line-height:1.05;margin:0}
+.spec{display:grid;grid-template-columns:72px 1fr;gap:4px 10px;font-size:12.5px;margin:0}
+.spec dt{color:var(--mute)}
+.spec dd{margin:0}
+.q{display:grid;gap:8px}
+.q .k{font-size:11px;letter-spacing:.16em;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;background:var(--white)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.sz .chip{min-width:48px;text-align:center}
+.cta{display:block;width:100%;background:var(--ink);color:var(--white);border-radius:999px;padding:13px;font-size:13.5px;font-weight:500;text-align:center}
+.cta[disabled]{background:var(--line);color:var(--mute);cursor:default}
+.ghost{display:block;width:100%;text-align:center;font-size:12.5px;color:var(--mute);padding:6px}
+/* bottom bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;justify-content:center;pointer-events:none}
+.foot .in{pointer-events:auto;width:100%;max-width:520px;background:rgba(245,244,241,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.count{font-size:12.5px;color:var(--mute)}
+.count b{color:var(--ink);font-weight:600}
+.foot .cta{width:auto;padding:11px 26px}
+.field{display:grid;gap:6px}
+.field label{font-size:11px;letter-spacing:.16em;color:var(--mute)}
+.field input{font:inherit;font-size:15px;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:8px 0;border-radius:0}
+.field input:focus{outline:none;border-color:var(--red)}
+.opt{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.opt input{accent-color:var(--ink);margin-top:3px}
+.done{text-align:center;padding-block:70px 30px;display:grid;gap:10px}
+.done h2{font-family:var(--f-disp);font-weight:400;font-size:40px;margin:0}
+.done p{color:var(--mute);margin:0}
+.demo{margin-top:24px;border:1px dashed var(--line);border-radius:10px;padding:12px;display:grid;gap:8px;text-align:left}
+.demo summary{font-size:11px;letter-spacing:.14em;color:var(--mute);cursor:pointer}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;font-size:11px;white-space:nowrap}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}
+.tbl th{color:var(--mute);font-weight:500}
+/* lineup overview: one image, fits width */
+.ov{position:relative;background:#CDD1D6;border-block:1px solid var(--line)}
+.ov img{width:100%;height:auto;display:block}
+.ov .zone{padding-bottom:6px;gap:3px}
+.ov .zone .tk{width:18px;height:18px;font-size:10px;border-width:1.2px}
+.nums{position:relative;height:30px;border-bottom:1px solid var(--line)}
+.nb{position:absolute;top:0;bottom:0;font-size:10.5px;letter-spacing:.04em;color:var(--mute);font-variant-numeric:tabular-nums}
+.nb[aria-pressed="true"]{color:var(--red);font-weight:600}
+.mood{position:relative;height:33vh;min-height:190px;max-height:300px;background-size:cover;background-position:center;display:grid;place-items:center;overflow:hidden;border-bottom:1px solid var(--line)}
+.mood::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(20,18,16,.38),rgba(20,18,16,.12) 70%)}
+.mood::after{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+.mood h1{position:relative;z-index:1;font-family:var(--f-disp);font-weight:400;font-size:52px;line-height:1;margin:0;color:#F7F4EE;letter-spacing:-.01em;text-shadow:0 2px 22px rgba(0,0,0,.45)}
+.mood h1 i{font-style:italic}
+.none-row{display:flex;justify-content:center;padding-block:26px 30px}
+.nonebtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12px;color:var(--mute);background:transparent}
+.nonebtn .bx{width:14px;height:14px;border-radius:50%;border:1px solid var(--mute);display:grid;place-items:center;font-size:8px;color:transparent}
+.nonebtn[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.nonebtn[aria-pressed="true"] .bx{background:var(--red);border-color:var(--red);color:var(--white)}
+.lk{border-top:1px solid var(--line);margin-top:6px}
+@media (prefers-reduced-motion:no-preference){.lk{animation:fadein .35s ease-out}@keyframes fadein{from{opacity:0;transform:translateY(10px)}}}
+.lk-h{display:flex;justify-content:space-between;align-items:center;padding-block:14px 10px}
+.lk .hero img{max-height:62vh}
+/* lineup overview */
+.step{font-size:11px;letter-spacing:.18em;color:var(--mute);text-align:center;padding-top:18px}
+.lead{text-align:center;font-size:13px;color:var(--ink);padding:4px 0 14px}
+.strip{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;border-block:1px solid var(--line);background:#CDD1D6}
+.strip::-webkit-scrollbar{display:none}
+.strip-in{position:relative;height:min(64vh,560px);width:max-content}
+.strip-in img{height:100%;width:auto;display:block;max-width:none}
+.zone{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:10px;gap:6px}
+.zone .num{font-size:11px;letter-spacing:.14em;font-weight:500}
+.zone .tk{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--ink);background:rgba(245,244,241,.75);display:grid;place-items:center;font-size:13px;color:transparent}
+.zone[aria-pressed="true"] .tk{background:var(--red);border-color:var(--red);color:var(--white)}
+.zone[aria-pressed="true"]::after{content:"";position:absolute;inset:3px 1px 2px;border:1.5px solid var(--red);border-radius:6px;pointer-events:none}
+.swipe{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);padding-block:8px;letter-spacing:.08em}
+.progress{font-size:11px;letter-spacing:.16em;color:var(--mute);text-align:center;padding-top:10px}
+.src{display:flex;justify-content:center;gap:8px;font-size:11px;color:var(--mute);padding:8px 0;border-bottom:1px solid var(--line)}
+.src select{font:inherit;border:0;background:transparent;color:var(--ink);text-decoration:underline}
+</style>
+
+<div class="app" id="app"></div>
+<div class="foot" id="foot"></div>
+<div id="layer"></div>
+
 <script>
-  var APP = "https://script.google.com/macros/s/AKfycbyd2zgzqN_6esjQD7UgIxXvqFwZ_yUhnjPVQCoWb8Fhg1t7f3nATeZM1oypF2hus8Nx/exec";
-  location.replace(APP + (location.search || "?src=khac"));
+const IMG={look:new Proxy({},{get:(o,k)=>'img/look/'+k+'.jpg'}),item:new Proxy({},{get:(o,k)=>'img/item/'+k+'.jpg'}),lineup:'img/lineup.jpg',mood:'img/mood.jpg'};
+const P={
+ '01':{nm:'Tee sẹo',mat:'Cotton',phom:'Boxy, tay lỡ',det:'Đường sẹo cong khâu nổi ở lưng'},
+ '02':{nm:'Cổ lọ dài túi tay',mat:'Cotton',phom:'Dài qua hông, cổ lọ cao, xẻ tà',det:'Túi nhỏ ở bắp tay, khe cong sau gáy'},
+ '03':{nm:'Sơ mi sẹo ngực',mat:'Kaki',phom:'Rộng, vai rơi',det:'Vết sẹo cong lớn khâu ngang ngực'},
+ '06':{nm:'Zip hoodie mũ vá',mat:'Nỉ',phom:'Ngắn, gấu bo dây rút',det:'Miếng vá trên mũ'},
+ '08':{nm:'Zip jacket hai túi',mat:'Kaki',phom:'Ngắn, vai rộng',det:'Hai túi hộp nắp nhọn, vạt lệch sau lưng'},
+ '09':{nm:'Bomber',mat:'Kaki',phom:'Ngắn, tay phồng, bo gấu',det:'Các vết rạch xéo ở lưng và tay'},
+ '10':{nm:'Field jacket',mat:'Kaki',phom:'Rút eo, cổ đứng',det:'Choàng vai, dây rút eo'},
+ '12':{nm:'Gile vải chần',mat:'Kaki',phom:'Cổ đứng, cài khuy',det:'Vai chần bông, túi cơi xéo'},
+ '16':{nm:'Quần loe cạnh gối',mat:'Kaki',phom:'Ống loe',det:'Đường cắt chéo quanh gối'},
+ '17':{nm:'Jogger gối rách',mat:'Kaki',phom:'Ống suông rộng',det:'Đường may nổi dọc ống, rách ở gối'},
+ '18':{nm:'Short sẹo',mat:'Kaki',phom:'Ngố rộng, cạp chun',det:'Đường sẹo cong hai bên đùi'},
+};
+const C={'03.1':['Be','#BCB2A2'],'17.1':['Be','#9F9784'],'06.1':['Xám nhạt','#8E8E8E'],'16.1':['Xám nhạt','#A6A6A6'],'12.1':['Xám chì','#4A484D'],'18.2':['Xám','#5B585E'],
+ '08.1':['Xám than','#33302F'],'16.3':['Xám than','#3C3C3B'],'10.1':['Xanh lính','#393A2B'],'17.5':['Đen','#1D1C1B'],'09.2':['Đen','#121312'],'01.3':['Xám','#696969'],
+ '16.4':['Đen','#161616'],'03.2':['Đen','#232323'],'18.4':['Đen','#1B1B1B'],'08.2':['Đen','#0E0E0E'],'17.2':['Ô liu','#50483C'],
+ 'x_bomber_be':['Be','#B3A584','09'],'x_colo_kem':['Kem','#E3DCCD','02'],'x_field_den':['Đen','#141414','10']};
+const LOOKS=[['03.1','17.1'],['x_bomber_be','x_colo_kem','17.1'],['06.1','16.1'],['12.1','18.2'],['08.1','16.3'],['10.1','17.5'],['09.2','01.3','18.2'],['x_field_den','16.4'],['03.2','18.4'],['08.2','17.2']];
+const REASONS=['Màu','Phom','Detail','Chất liệu','Khác'];const PRICEQ=['Rẻ','Hợp lý','Hơi cao','Quá cao'];
+const PRICE={'02':695000,'03':995000,'06':1395000,'08':1395000,'09':1595000,'10':1800000,'16':995000,'17':995000,'18':795000};
+const vnd=x=>x?x.toLocaleString('vi-VN')+'đ':'';const isOn=v=>v&&(v.like||v.nope||v.reasons.size||v.size||v.price);
+const answered=n=>LOOKS[n-1].filter(c=>isOn(state.items[itemKey(n,c)])).length;const SIZES=['S','M','L','XL'];
+const pid=c=>c.startsWith('x_')?C[c][2]:c.split('.')[0];
+const sku=c=>c.startsWith('x_')?pid(c)+'-'+C[c][0].toUpperCase():c;
+const nn=n=>String(n).padStart(2,'0');
+const HEART='<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+const BACK='<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
+let state={view:'home',look:1,side:'f',likes:new Set(),items:{},sent:false,contact:'',notify:true};
+const $=s=>document.querySelector(s);
+const itemKey=(n,c)=>n+'|'+c;
+const picked=()=>Object.entries(state.items).filter(([k,v])=>isOn(v)&&state.likes.has(+k.split('|')[0]));
+const ZONES=[0,225,425,620,815,1003,1185,1380,1565,1760,2000];
+const sel=()=>[...state.likes].sort((a,b)=>a-b);
+const sides={};
+function foot(){
+  if(state.sent){$('#foot').innerHTML='';return}
+  const nm=picked().length;
+  $('#foot').innerHTML=`<div class="in"><span class="count">${state.none?'<b>Không hợp gu</b>':`<b>${state.likes.size}</b> look · <b class="${state.likes.size&&!nm?'warn':''}">${nm}</b> món`}</span><button class="cta" id="go" ${state.likes.size||state.none?'':'disabled'}>Gửi</button></div>`;
+  $('#go').onclick=()=>{if(state.none){openSubmit();return}
+    const miss=sel().filter(n=>!answered(n));
+    if(miss.length)nudge(miss);else openSubmit()};
+}
+function nudge(miss){
+  const all=miss.length===state.likes.size;
+  sheet(`<div class="sh-body gut" style="padding-top:22px"><div class="sh-title"><h2>${all?'Bro chưa chọn món nào':'Còn look chưa chọn món'}</h2></div>
+   <p class="note">${all?'Mỗi look bro chạm <b>Thích</b> hoặc <b>Không hợp gu</b> ở từng món giúp NBG nhé, mất chưa tới 1 phút.':'Look '+miss.map(nn).join(', ')+' chưa có món nào được chọn.'}</p>
+   <button class="cta" id="pick">Chọn món</button><button class="ghost" id="anyway">Vẫn gửi</button></div>`);
+  $('#pick').onclick=()=>{close();const el=document.getElementById('lk-'+miss[0]);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})};
+  $('#anyway').onclick=()=>{close();openSubmit()};
+}
+function section(n){
+  const it=LOOKS[n-1],sd=sides[n]||'f';
+  return `<section class="lk" id="lk-${n}"><div class="lk-h gut"><span class="ln">LOOK ${nn(n)} <span class="prog ${answered(n)===it.length?'done':''}">${answered(n)}/${it.length} món</span></span>
+  <div class="seg" style="padding:0"><button data-side="f" data-n="${n}" aria-pressed="${sd==='f'}">TRƯỚC</button><button data-side="b" data-n="${n}" aria-pressed="${sd==='b'}">SAU</button></div></div>
+  <div class="lrow n${it.length}"><div class="lfig"><img id="hero-${n}" src="${IMG.look[n+sd]}" alt="Look ${n}"></div>
+  <div class="litems">${it.map(c=>{const p=P[pid(c)];const v=state.items[itemKey(n,c)];const on=isOn(v);
+   return `<div class="li${on?(v.nope?' is-no':' is-yes'):''}">${on?(v.nope?'<span class="check no">✕</span>':'<span class="check">✓</span>'):''}<button class="open" data-item="${c}" data-n="${n}"><img src="${IMG.item[c+'f']}" alt="" loading="lazy" decoding="async"><span class="t"><span class="iname">${p.nm}</span><span class="isub"><i class="dot" style="background:${C[c][1]}"></i>${C[c][0]}</span><span class="more">Xem chi tiết ›</span></span></button><div class="qa"><button data-q="like" data-c="${c}" data-n="${n}" aria-pressed="${on&&!v.nope}">Thích</button><button data-q="nope" data-c="${c}" data-n="${n}" aria-pressed="${!!(on&&v.nope)}">Không hợp gu</button></div></div>`}).join('')}</div></div></section>`;
+}
+function syncPick(){document.querySelectorAll('[data-pick]').forEach(b=>b.setAttribute('aria-pressed',state.likes.has(+b.dataset.pick)));const nb=$('#none');if(nb)nb.setAttribute('aria-pressed',!!state.none)}
+function renderLooks(){
+  const L=sel();
+  $('#looks').innerHTML=state.none?`<p class="hint">Cảm ơn bro đã xem. Bấm Gửi để NBG ghi nhận nhé.</p>`:L.length?`<p class="hint step2"><b>Bước 2</b> · Ở mỗi look, bấm <b>Thích</b> hoặc <b>Không hợp gu</b> cho từng món</p>`+L.map(section).join(''):`<p class="hint">Look bro chọn sẽ hiện ở dưới đây</p>`;
+  foot();
+}
+function home(){
+  state.view='home';
+  $('#app').innerHTML=`<div class="mood" style="background-image:url('${IMG.mood}')"><h1>2026 <i>Demo</i></h1></div>
+  <p class="lead" style="padding-top:16px"><b>Bước 1</b> · Chạm vào những look bro thích</p>
+  <div class="ov"><img src="${IMG.lineup}" alt="10 look của bộ sưu tập">
+  ${LOOKS.map((_,i)=>{const n=i+1,l=ZONES[i]/20,w=(ZONES[i+1]-ZONES[i])/20;return `<button class="zone" data-pick="${n}" aria-pressed="${state.likes.has(n)}" style="left:${l}%;width:${w}%" aria-label="Chọn look ${n}"><span class="tk">✓</span></button>`}).join('')}
+  </div>
+  <div class="nums">${LOOKS.map((_,i)=>{const n=i+1,l=ZONES[i]/20,w=(ZONES[i+1]-ZONES[i])/20;return `<button class="nb" data-pick="${n}" aria-pressed="${state.likes.has(n)}" style="left:${l}%;width:${w}%" aria-label="Chọn look ${n}">${nn(n)}</button>`}).join('')}</div>
+  <div id="looks"></div>
+  <div class="none-row gut"><button class="nonebtn" id="none" aria-pressed="${!!state.none}"><span class="bx">✕</span>Không có look nào hợp gu mình</button></div>`;
+  renderLooks();
+}
+function sheet(html){$('#layer').innerHTML=`<div class="veil" id="veil"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+  $('#veil').onclick=e=>{if(e.target.id==='veil')close()};document.body.style.overflow='hidden'}
+function close(){$('#layer').innerHTML='';document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+function openItem(c,n){
+  const k=itemKey(n,c),p=P[pid(c)];
+  const v=state.items[k]?{reasons:new Set(state.items[k].reasons),size:state.items[k].size,price:state.items[k].price,nope:!!state.items[k].nope,like:!!state.items[k].like}:{reasons:new Set(),size:null,price:null,nope:false,like:false};const pr=PRICE[pid(c)];
+  let side='f';
+  const draw=()=>{sheet(`<div class="sh-img"><img src="${IMG.item[c+side]}" alt="${p.nm}"></div>
+   <div class="seg"><button data-s="f" aria-pressed="${side==='f'}">TRƯỚC</button><button data-s="b" aria-pressed="${side==='b'}">SAU</button></div>
+   <div class="sh-body gut"><div class="sh-title"><h2>${p.nm}</h2><span class="isub"><i class="dot" style="background:${C[c][1]}"></i>${C[c][0]}</span></div>
+   ${pr?`<p class="price">Giá dự kiến <b>${vnd(pr)}</b></p>`:''}
+   <dl class="spec"><dt>Chất liệu</dt><dd>${p.mat}</dd><dt>Phom</dt><dd>${p.phom}</dd><dt>Detail</dt><dd>${p.det}</dd></dl>
+   <div class="q"><span class="k">BRO THẤY MÓN NÀY</span><div class="chips"><button class="chip" data-v="like" aria-pressed="${!v.nope&&isOn(v)}">Thích</button><button class="chip" data-v="nope" aria-pressed="${v.nope}">Không hợp gu</button></div></div>
+   <div ${v.nope?'hidden':''} style="display:grid;gap:14px"><div class="q"><span class="k">THÍCH VÌ</span><div class="chips">${REASONS.map(r=>`<button class="chip" data-r="${r}" aria-pressed="${v.reasons.has(r)}">${r}</button>`).join('')}</div></div>
+   <div class="q"><span class="k">SIZE BRO MẶC</span><div class="chips sz">${SIZES.map(s=>`<button class="chip" data-z="${s}" aria-pressed="${v.size===s}">${s}</button>`).join('')}</div></div>
+   ${pr?`<div class="q"><span class="k">MỨC GIÁ NÀY VỚI BRO</span><div class="chips">${PRICEQ.map(q=>`<button class="chip" data-p="${q}" aria-pressed="${v.price===q}">${q}</button>`).join('')}</div></div>`:''}
+   </div>
+   <button class="cta" id="save" ${isOn(v)?'':'disabled'}>${v.nope?'Lưu':'Chọn món này'}</button>
+   ${state.items[k]?'<button class="ghost" id="rm">Bỏ chọn</button>':''}</div>`);
+   document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{side=b.dataset.s;draw()});
+   document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const r=b.dataset.r;v.nope=false;v.reasons.has(r)?v.reasons.delete(r):v.reasons.add(r);draw()});
+   document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(b.dataset.v==='nope'){v.nope=!v.nope;if(v.nope){v.like=false;v.reasons.clear();v.size=null;v.price=null}}else{v.nope=false;v.like=true}draw()});
+   document.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{v.nope=false;v.size=v.size===b.dataset.z?null:b.dataset.z;draw()});
+   document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{v.nope=false;v.price=v.price===b.dataset.p?null:b.dataset.p;draw()});
+   $('#save').onclick=()=>{state.items[k]=v;close();renderLooks()};
+   const rm=$('#rm');if(rm)rm.onclick=()=>{delete state.items[k];close();renderLooks()};
+  };draw();
+}
+function openSubmit(){
+  sheet(`<div class="sh-body gut" style="padding-top:22px"><div class="sh-title"><h2>Gần xong</h2><span class="count"><b>${state.likes.size}</b> look · <b>${picked().length}</b> món</span></div>
+   <div class="field"><label for="ct">INSTAGRAM HOẶC SỐ ĐIỆN THOẠI</label><input id="ct" value="${state.contact.replace(/"/g,'&quot;')}" placeholder="@ten_ig hoặc 09xx" autocomplete="tel"></div>
+   <label class="opt"><input type="checkbox" id="nt" ${state.notify?'checked':''}> Nhắn mình khi các món đã chọn được sản xuất</label>
+   <p class="consent">Khi gửi, bro đồng ý để NBG dùng thông tin liên hệ này để báo tin về bộ sưu tập FW26.</p>
+   <button class="cta" id="send" ${state.contact.trim()?'':'disabled'}>Gửi lựa chọn</button></div>`);
+  $('#ct').oninput=e=>{state.contact=e.target.value;$('#send').disabled=!state.contact.trim()};
+  $('#nt').onchange=e=>state.notify=e.target.checked;
+  $('#send').onclick=submit;
+}
+function summaryHTML(id){
+  const L=sel(),items=picked();const now=new Date(),p2=x=>String(x).padStart(2,'0');
+  const when=`${p2(now.getDate())}/${p2(now.getMonth()+1)} ${p2(now.getHours())}:${p2(now.getMinutes())}`;
+  const esc2=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const rowsHTML=items.map(([k,v])=>{const [n,c]=k.split('|');const p=P[pid(c)];
+    const rs=[...v.reasons];const tag=v.nope?'<span class="sv no">Không hợp gu</span>':'<span class="sv">Thích</span>';
+    const extra=v.nope?'':[v.size?'Size '+v.size:'',rs.length?'Vì '+rs.join(', ').toLowerCase():'',v.price?'Giá: '+v.price.toLowerCase():''].filter(Boolean).join(' · ');
+    return `<li><img src="${IMG.item[c+'f']}" alt="" loading="lazy" decoding="async"><div><span class="sl">L${nn(n)}</span> <b>${p.nm}</b> · ${C[c][0]} ${tag}${extra?`<br><span class="sx">${extra}</span>`:''}</div></li>`}).join('');
+  return `<div class="sum gut"><p class="smark">2026 <i>Demo</i></p><p class="shot">(Chụp lại gửi sốp)</p>
+   <div class="sum-h"><h2>Cảm ơn bro.</h2><span class="sid">${id?esc2(id)+' · ':''}${when}</span></div>
+   <p class="sc">${esc2(state.contact)}</p>
+   ${state.none?'<p class="sn">Không có look nào hợp gu</p>':`
+   <span class="k">LOOK ĐÃ CHỌN</span>
+   <div class="slooks">${L.map(n=>`<figure><img src="${IMG.look[n+'f']}" alt="Look ${n}"><figcaption>${nn(n)}</figcaption></figure>`).join('')}</div>
+   <span class="k">MÓN ĐÃ CHỌN · ${items.length}</span>
+   ${items.length?`<ul class="sitems">${rowsHTML}</ul>`:'<p class="sn">Chưa chọn món nào</p>'}`}
+  </div>`;
+}
+const APP="https://script.google.com/macros/s/AKfycbyd2zgzqN_6esjQD7UgIxXvqFwZ_yUhnjPVQCoWb8Fhg1t7f3nATeZM1oypF2hus8Nx/exec";
+const SRC=(()=>{const s=new URLSearchParams(location.search).get('src')||'';return s==='chat'?'box chat':s==='story'?'story':(s?s.slice(0,30):'khác')})();
+function submit(){
+  const btn=$('#send');btn.disabled=true;btn.textContent='Đang gửi…';
+  const items=picked().map(([k,v])=>{const [n,c]=k.split('|');return {look:+n,code:sku(c),name:P[pid(c)].nm,color:C[c][0],reasons:REASONS.map(r=>v.reasons.has(r)?1:0),size:v.size||'',price:PRICE[pid(c)]||'',priceView:v.price||'',nope:v.nope?1:0}});
+  const payload={src:SRC,contact:state.contact.trim(),notify:state.notify,looks:sel(),items,none:state.none?1:0};
+  const ok=(res)=>{state.sent=true;close();foot();$('#app').innerHTML=summaryHTML(res&&res.id);window.scrollTo(0,0)};
+  const fail=()=>{btn.disabled=false;btn.textContent='Gửi lại';
+    let m=document.getElementById('err');if(!m){m=document.createElement('p');m.id='err';m.style.cssText='color:#C4321F;font-size:12.5px;margin:0';btn.after(m)}
+    m.textContent='Chưa gửi được, bro kiểm tra mạng rồi bấm Gửi lại nhé.'};
+  fetch(APP,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(j=>{if(j&&j.ok)ok(j);else fail()}).catch(fail);
+}
+document.addEventListener('click',e=>{
+  const pk=e.target.closest('[data-pick]');if(pk){const n=+pk.dataset.pick;state.likes.has(n)?state.likes.delete(n):state.likes.add(n);state.none=false;syncPick();renderLooks();return}
+  if(e.target.closest('#none')){state.none=!state.none;if(state.none)state.likes.clear();syncPick();renderLooks();return}
+  const sd=e.target.closest('[data-side]');if(sd){const n=+sd.dataset.n;sides[n]=sd.dataset.side;$('#hero-'+n).src=IMG.look[n+sides[n]];sd.parentElement.querySelectorAll('[data-side]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.side===sides[n]));return}
+  const qa=e.target.closest('[data-q]');if(qa){const c=qa.dataset.c,n=+qa.dataset.n,k=itemKey(n,c);
+    if(qa.dataset.q==='nope'){const cur=state.items[k];if(cur&&cur.nope)delete state.items[k];else state.items[k]={reasons:new Set(),size:null,price:null,nope:true,like:false};renderLooks();return}
+    const cur=state.items[k];state.items[k]=cur&&!cur.nope?Object.assign(cur,{like:true}):{reasons:new Set(),size:null,price:null,nope:false,like:true};renderLooks();openItem(c,n);return}
+  const itb=e.target.closest('[data-item]');if(itb){openItem(itb.dataset.item,+itb.dataset.n)}
+});
+home();
 </script>
-</head>
-<body><p>Đang mở… <a id="go" href="https://script.google.com/macros/s/AKfycbyd2zgzqN_6esjQD7UgIxXvqFwZ_yUhnjPVQCoWb8Fhg1t7f3nATeZM1oypF2hus8Nx/exec">Bấm vào đây nếu trang không tự mở</a></p>
-<script>document.getElementById('go').href = APP + (location.search || "?src=khac");</script>
-</body>
-</html>
+
+</body></html>
