@@ -191,6 +191,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* lineup overview */
 .step{font-size:11px;letter-spacing:.18em;color:var(--mute);text-align:center;padding-top:18px}
 .lead{text-align:center;font-size:13px;color:var(--ink);padding:4px 0 14px}
+.disclaim{text-align:center;font-size:11.5px;color:var(--red);margin:-20px 0 12px;padding:0 16px;letter-spacing:.01em}
 .strip{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;border-block:1px solid var(--line);background:#CDD1D6}
 .strip::-webkit-scrollbar{display:none}
 .strip-in{position:relative;height:min(64vh,560px);width:max-content}
@@ -272,7 +273,7 @@ function section(n){
 }
 function syncPick(){document.querySelectorAll('[data-pick]').forEach(b=>b.setAttribute('aria-pressed',state.likes.has(+b.dataset.pick)));const nb=$('#none');if(nb)nb.setAttribute('aria-pressed',!!state.none)}
 function renderLooks(){
-  const L=sel();
+  const L=[...state.likes].reverse();
   $('#looks').innerHTML=state.none?`<p class="hint">Cảm ơn bro đã xem. Bấm Gửi để NBG ghi nhận nhé.</p>`:L.length?`<p class="hint step2"><b>Bước 2</b> · Ở mỗi look, bấm <b>Thích</b> hoặc <b>Không hợp gu</b> cho từng món</p>`+L.map(section).join(''):`<p class="hint">Look bro chọn sẽ hiện ở dưới đây</p>`;
   foot();
 }
@@ -280,6 +281,7 @@ function home(){
   state.view='home';
   $('#app').innerHTML=`<div class="mood" style="background-image:url('${IMG.mood}')"><h1>2026 <i>Demo</i></h1></div>
   <p class="lead" style="padding-top:16px"><b>Bước 1</b> · Chạm vào những look bro thích</p>
+  <p class="disclaim">Đây là khảo sát, không phải preorder, pick đi đừng sợ 😏</p>
   <div class="ov"><img src="${IMG.lineup}" alt="10 look của bộ sưu tập">
   ${LOOKS.map((_,i)=>{const n=i+1,l=ZONES[i]/20,w=(ZONES[i+1]-ZONES[i])/20;return `<button class="zone" data-pick="${n}" aria-pressed="${state.likes.has(n)}" style="left:${l}%;width:${w}%" aria-label="Chọn look ${n}"><span class="tk">✓</span></button>`}).join('')}
   </div>
