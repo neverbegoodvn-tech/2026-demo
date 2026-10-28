@@ -277,6 +277,20 @@ function renderLooks(){
   $('#looks').innerHTML=state.none?`<p class="hint">Cảm ơn bro đã xem. Bấm Gửi để NBG ghi nhận nhé.</p>`:L.length?`<p class="hint step2"><b>Bước 2</b> · Ở mỗi look, bấm <b>Thích</b> hoặc <b>Không hợp gu</b> cho từng món</p>`+L.map(section).join(''):`<p class="hint">Look bro chọn sẽ hiện ở dưới đây</p>`;
   foot();
 }
+function refreshLook(n){
+  const sec=document.getElementById('lk-'+n);if(!sec){renderLooks();return}
+  const it=LOOKS[n-1],a=answered(n),pg=sec.querySelector('.prog');
+  pg.textContent=a+'/'+it.length+' món';pg.classList.toggle('done',a===it.length);
+  sec.querySelectorAll('.li').forEach((li,i)=>{const c=it[i],v=state.items[itemKey(n,c)],on=isOn(v);
+    li.classList.toggle('is-yes',!!on&&!v.nope);li.classList.toggle('is-no',!!(on&&v.nope));
+    const ck=li.querySelector('.check');if(ck)ck.remove();
+    if(on)li.insertAdjacentHTML('afterbegin',v.nope?'<span class="check no">✕</span>':'<span class="check">✓</span>');
+    li.querySelector('[data-q="like"]').setAttribute('aria-pressed',!!(on&&!v.nope));
+    li.querySelector('[data-q="nope"]').setAttribute('aria-pressed',!!(on&&v.nope));});
+  foot();
+}
+function addLook(n){const h=document.querySelector('#looks .step2');if(!h){renderLooks();return}h.insertAdjacentHTML('afterend',section(n));foot()}
+function removeLook(n){if(!state.likes.size){renderLooks();return}const sc=document.getElementById('lk-'+n);if(sc)sc.remove();foot()}
 function home(){
   state.view='home';
   $('#app').innerHTML=`<div class="mood" style="background-image:url('${IMG.mood}')"><h1>2026 <i>Demo</i></h1></div>
@@ -304,19 +318,23 @@ function openItem(c,n){
    ${pr?`<p class="price">Giá dự kiến <b>${vnd(pr)}</b></p>`:''}
    <dl class="spec"><dt>Chất liệu</dt><dd>${p.mat}</dd><dt>Phom</dt><dd>${p.phom}</dd><dt>Detail</dt><dd>${p.det}</dd></dl>
    <div class="q"><span class="k">BRO THẤY MÓN NÀY</span><div class="chips"><button class="chip" data-v="like" aria-pressed="${!v.nope&&isOn(v)}">Thích</button><button class="chip" data-v="nope" aria-pressed="${v.nope}">Không hợp gu</button></div></div>
-   <div ${v.nope?'hidden':''} style="display:grid;gap:14px"><div class="q"><span class="k">THÍCH VÌ</span><div class="chips">${REASONS.map(r=>`<button class="chip" data-r="${r}" aria-pressed="${v.reasons.has(r)}">${r}</button>`).join('')}</div></div>
+   <div id="dq" ${v.nope?'hidden':''} style="display:grid;gap:14px"><div class="q"><span class="k">THÍCH VÌ</span><div class="chips">${REASONS.map(r=>`<button class="chip" data-r="${r}" aria-pressed="${v.reasons.has(r)}">${r}</button>`).join('')}</div></div>
    <div class="q"><span class="k">SIZE BRO MẶC</span><div class="chips sz">${SIZES.map(s=>`<button class="chip" data-z="${s}" aria-pressed="${v.size===s}">${s}</button>`).join('')}</div></div>
    ${pr?`<div class="q"><span class="k">MỨC GIÁ NÀY VỚI BRO</span><div class="chips">${PRICEQ.map(q=>`<button class="chip" data-p="${q}" aria-pressed="${v.price===q}">${q}</button>`).join('')}</div></div>`:''}
    </div>
    <button class="cta" id="save" ${isOn(v)?'':'disabled'}>${v.nope?'Lưu':'Chọn món này'}</button>
    ${state.items[k]?'<button class="ghost" id="rm">Bỏ chọn</button>':''}</div>`);
-   document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{side=b.dataset.s;draw()});
-   document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const r=b.dataset.r;v.nope=false;v.reasons.has(r)?v.reasons.delete(r):v.reasons.add(r);draw()});
-   document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(b.dataset.v==='nope'){v.nope=!v.nope;if(v.nope){v.like=false;v.reasons.clear();v.size=null;v.price=null}}else{v.nope=false;v.like=true}draw()});
-   document.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{v.nope=false;v.size=v.size===b.dataset.z?null:b.dataset.z;draw()});
-   document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{v.nope=false;v.price=v.price===b.dataset.p?null:b.dataset.p;draw()});
-   $('#save').onclick=()=>{state.items[k]=v;close();renderLooks()};
-   const rm=$('#rm');if(rm)rm.onclick=()=>{delete state.items[k];close();renderLooks()};
+   const L=$('#layer'),A=(sl,f)=>L.querySelectorAll(sl).forEach(b=>b.setAttribute('aria-pressed',!!f(b)));
+   const sync=()=>{A('[data-v]',b=>b.dataset.v==='nope'?v.nope:(!v.nope&&isOn(v)));A('[data-r]',b=>v.reasons.has(b.dataset.r));
+     A('[data-z]',b=>v.size===b.dataset.z);A('[data-p]',b=>v.price===b.dataset.p);$('#dq').hidden=!!v.nope;
+     const sv=$('#save');sv.disabled=!isOn(v);sv.textContent=v.nope?'Lưu':'Chọn món này'};
+   L.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{side=b.dataset.s;L.querySelector('.sh-img img').src=IMG.item[c+side];A('[data-s]',x=>x.dataset.s===side)});
+   L.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const r=b.dataset.r;v.nope=false;v.reasons.has(r)?v.reasons.delete(r):v.reasons.add(r);sync()});
+   L.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(b.dataset.v==='nope'){v.nope=!v.nope;if(v.nope){v.like=false;v.reasons.clear();v.size=null;v.price=null}}else{v.nope=false;v.like=true}sync()});
+   L.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{v.nope=false;v.size=v.size===b.dataset.z?null:b.dataset.z;sync()});
+   L.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{v.nope=false;v.price=v.price===b.dataset.p?null:b.dataset.p;sync()});
+   $('#save').onclick=()=>{state.items[k]=v;close();refreshLook(n)};
+   const rm=$('#rm');if(rm)rm.onclick=()=>{delete state.items[k];close();refreshLook(n)};
   };draw();
 }
 function openSubmit(){
@@ -361,12 +379,13 @@ function submit(){
     .then(r=>r.json()).then(j=>{if(j&&j.ok)ok(j);else fail()}).catch(fail);
 }
 document.addEventListener('click',e=>{
-  const pk=e.target.closest('[data-pick]');if(pk){const n=+pk.dataset.pick;state.likes.has(n)?state.likes.delete(n):state.likes.add(n);state.none=false;syncPick();renderLooks();return}
+  const pk=e.target.closest('[data-pick]');if(pk){const n=+pk.dataset.pick,wasNone=state.none;state.none=false;
+    if(state.likes.has(n)){state.likes.delete(n);syncPick();removeLook(n)}else{state.likes.add(n);syncPick();if(wasNone)renderLooks();else addLook(n)}return}
   if(e.target.closest('#none')){state.none=!state.none;if(state.none)state.likes.clear();syncPick();renderLooks();return}
   const sd=e.target.closest('[data-side]');if(sd){const n=+sd.dataset.n;sides[n]=sd.dataset.side;$('#hero-'+n).src=IMG.look[n+sides[n]];sd.parentElement.querySelectorAll('[data-side]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.side===sides[n]));return}
   const qa=e.target.closest('[data-q]');if(qa){const c=qa.dataset.c,n=+qa.dataset.n,k=itemKey(n,c);
-    if(qa.dataset.q==='nope'){const cur=state.items[k];if(cur&&cur.nope)delete state.items[k];else state.items[k]={reasons:new Set(),size:null,price:null,nope:true,like:false};renderLooks();return}
-    const cur=state.items[k];state.items[k]=cur&&!cur.nope?Object.assign(cur,{like:true}):{reasons:new Set(),size:null,price:null,nope:false,like:true};renderLooks();openItem(c,n);return}
+    if(qa.dataset.q==='nope'){const cur=state.items[k];if(cur&&cur.nope)delete state.items[k];else state.items[k]={reasons:new Set(),size:null,price:null,nope:true,like:false};refreshLook(n);return}
+    const cur=state.items[k];state.items[k]=cur&&!cur.nope?Object.assign(cur,{like:true}):{reasons:new Set(),size:null,price:null,nope:false,like:true};refreshLook(n);openItem(c,n);return}
   const itb=e.target.closest('[data-item]');if(itb){openItem(itb.dataset.item,+itb.dataset.n)}
 });
 home();
