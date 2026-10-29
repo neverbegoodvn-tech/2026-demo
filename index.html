@@ -322,7 +322,6 @@ function openItem(c,n){
    <dl class="spec"><dt>Chất liệu</dt><dd>${p.mat}</dd><dt>Phom</dt><dd>${p.phom}</dd><dt>Detail</dt><dd>${p.det}</dd></dl>
    <div class="q"><span class="k">BRO THẤY MÓN NÀY</span><div class="chips"><button class="chip" data-v="like" aria-pressed="${!v.nope&&isOn(v)}">Thích</button><button class="chip" data-v="nope" aria-pressed="${v.nope}">Không hợp gu</button></div></div>
    <div id="dq" ${v.nope?'hidden':''} style="display:grid;gap:14px"><div class="q"><span class="k">THÍCH VÌ</span><div class="chips">${REASONS.map(r=>`<button class="chip" data-r="${r}" aria-pressed="${v.reasons.has(r)}">${r}</button>`).join('')}</div></div>
-   <div class="q"><span class="k">SIZE BRO MẶC</span><div class="chips sz">${SIZES.map(s=>`<button class="chip" data-z="${s}" aria-pressed="${v.size===s}">${s}</button>`).join('')}</div></div>
    ${pr?`<div class="q"><span class="k">MỨC GIÁ NÀY VỚI BRO</span><div class="chips">${PRICEQ.map(q=>`<button class="chip" data-p="${q}" aria-pressed="${v.price===q}">${q}</button>`).join('')}</div></div>`:''}
    </div>
    <button class="cta" id="save" ${isOn(v)?'':'disabled'}>${v.nope?'Lưu':'Chọn món này'}</button>
